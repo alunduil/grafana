@@ -31,6 +31,9 @@
           "enable": true,
           "hide": false,
           "iconColor": "purple",
+          "legacyOptions": {
+            "titleFormat": "{{friendly_name}}"
+          },
           "name": "Fan Running",
           "query": {
             "datasource": {
@@ -39,8 +42,8 @@
             "group": "prometheus",
             "kind": "DataQuery",
             "spec": {
-              "expr": "changes(hass_fan_state{entity=~\"fan.bedroom_starkvind|fan.living_room\"}[1m]) \u003e 0",
-              "interval": "",
+              "expr": "hass_fan_state == 1",
+              "interval": "1m",
               "refId": "Anno"
             },
             "version": "v0"
@@ -48,7 +51,7 @@
         }
       }
     ],
-    "cursorSync": "Off",
+    "cursorSync": "Crosshair",
     "description": "",
     "editable": true,
     "elements": {
@@ -1571,7 +1574,7 @@
         "url": "https://github.com/alunduil/grafana/blob/main/air-quality.json"
       }
     ],
-    "liveNow": false,
+    "liveNow": true,
     "preferences": {
       "layout": {
         "kind": "GridLayout",
@@ -1580,8 +1583,11 @@
         }
       }
     },
-    "preload": false,
-    "tags": [],
+    "preload": true,
+    "tags": [
+      "hass",
+      "air"
+    ],
     "timeSettings": {
       "autoRefresh": "",
       "autoRefreshIntervals": [
