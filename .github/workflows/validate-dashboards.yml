@@ -1,0 +1,41 @@
+name: validate-dashboards
+
+on:
+  pull_request:
+    paths:
+      - 'grafana/dashboards/**.json'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate dashboard JSON
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r -d '' file; do
+            echo "Checking $file"
+            if ! jq empty "$file"; then
+              echo "::error file=$file::invalid JSON"
+              fail=1
+              continue
+            fi
+            # Minimal Grafana dashboard shape check.
+            api=$(jq -r '.apiVersion // empty' "$file")
+            kind=$(jq -r '.kind // empty' "$file")
+            if [[ -z "$api" || -z "$kind" ]]; then
+              echo "::error file=$file::missing apiVersion or kind"
+              fail=1
+            fi
+            if [[ "$kind" != "Dashboard" ]]; then
+              echo "::error file=$file::kind is '$kind', expected 'Dashboard'"
+              fail=1
+            fi
+            if ! jq -e '.spec' "$file" >/dev/null; then
+              echo "::error file=$file::missing .spec"
+              fail=1
+            fi
+          done < <(find grafana/dashboards -name '*.json' -print0)
+          exit $fail
